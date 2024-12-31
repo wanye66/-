@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录成功</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        .countdown {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ff6f61;
+        }
+        .btn {
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #ff6f61; /* 鼠标悬停时改变按钮颜色 */
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>登录成功！</h2>
+    <p>正在为您跳转到主页...</p>
+    <p>如果页面没有自动跳转，您可以点击下面的按钮：</p>
+    <p class="countdown" id="countdown">5</p>
+    <a href="{% url 'home' %}" class="btn btn-primary">立即进入主页</a>
+</div>
+
+<script>
+    // 倒计时的初始值为5秒
+    var countdownValue = 5;
+    var countdownElement = document.getElementById("countdown");
+
+    // 设置一个定时器来更新倒计时
+    var countdownTimer = setInterval(function() {
+        countdownValue--;  // 每次减少1秒
+        countdownElement.textContent = countdownValue;  // 更新倒计时显示
+
+        // 如果倒计时结束，自动跳转到主页
+        if (countdownValue <= 0) {
+            clearInterval(countdownTimer);  // 清除定时器
+            window.location.href = "{% url 'home' %}";  // 跳转到主页
+        }
+    }, 1000);  // 每秒执行一次
+
+    // 点击按钮时，直接跳转到主页
+    document.querySelector('.btn').addEventListener('click', function() {
+        clearInterval(countdownTimer);  // 清除定时器
+        window.location.href = "{% url 'home' %}";  // 跳转到主页
+    });
+</script>
+
+</body>
+</html>

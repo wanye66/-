@@ -1,0 +1,126 @@
+<!-- register.html -->
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册新账号</title>
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body {
+            background-image: url("{% static 'images/cc.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .register-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .alert {
+            text-align: center;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            .register-container {
+                max-width: 300px;
+            }
+        }
+
+        .auth-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .auth-links a {
+            text-decoration: none;
+        }
+
+        .auth-links .btn {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <h2 class="mb-4 text-center">注册新账号</h2>
+
+        {% if messages %}
+            <div class="alert alert-danger">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" class="register-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="register-username">用户名</label>
+                <input type="text" class="form-control" id="register-username" name="username" required placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label for="register-email">邮箱</label>
+                <input type="email" class="form-control" id="register-email" name="email" required placeholder="请输入有效邮箱，用于重置密码">
+            </div>
+            <div class="form-group">
+                <label for="register-password">密码</label>
+                <input type="password" class="form-control" id="register-password" name="password" required placeholder="请输入6-16位密码（区分大小写，可包含数字和符号）">
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">确认密码</label>
+                <input type="password" class="form-control" id="confirm-password" name="confirm_password" required placeholder="请再次输入密码">
+            </div>
+            <button type="submit" class="btn btn-success">注册</button>
+        </form>
+
+        <div class="auth-links">
+            <a href="{% url 'login' %}" class="btn btn-link">已有账号？登录</a>
+            <a href="{% url 'forgot_password' %}" class="btn btn-link">忘记密码?</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const registerForm = document.querySelector('.register-form');
+            if (registerForm) {
+                registerForm.addEventListener('submit', function (event) {
+                    const password = document.getElementById('register-password').value;
+                    const confirmPassword = document.getElementById('confirm-password').value;
+                    if (password !== confirmPassword) {
+                        alert('密码不一致，请重新输入');
+                        event.preventDefault(); // 阻止表单提交
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

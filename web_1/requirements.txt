@@ -1,0 +1,2 @@
+Django==5.1.4            # 指定 Django 版本为 5.1.4
+PyMySQL==1.1.1           # 指定 PyMySQL 版本为 1.1.1（用于 MySQL 连接）

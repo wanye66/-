@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录与注册</title>
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        body {
+            background-image: url("{% static 'images/cc.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            position: relative; /* 用于定位错误提示 */
+        }
+
+        .alert {
+            text-align: center;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .login-container {
+                max-width: 300px;
+            }
+        }
+
+        .auth-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .auth-links a {
+            text-decoration: none;
+        }
+
+        .auth-links .btn {
+            width: 48%;
+        }
+
+        .spinner-border {
+            display: none;
+            margin-left: 10px;
+        }
+
+        /* 错误提示高亮 */
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .invalid-feedback {
+            display: none;
+            font-size: 0.875rem;
+            color: #dc3545;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            font-size: 0.75rem;
+            margin-top: 5px;
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* 文字过长时显示省略号 */
+        }
+
+        /* 登录按钮禁用状态样式 */
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 输入框聚焦时的样式 */
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        /* 错误提示框 */
+        .error-message {
+            display: none;
+            background-color: rgba(255, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            color: #dc3545;
+            font-size: 0.875rem;
+            position: absolute;
+            top: -40px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2 class="mb-4 text-center">登录</h2>
+
+        {% if messages %}
+            <div class="alert alert-danger">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="error-message" id="error-message"></div> <!-- 错误提示框 -->
+
+        <form method="POST" action="{% url 'login' %}" class="login-form" id="loginForm">
+            {% csrf_token %}
+            <div class="form-group position-relative">
+                <label for="username">用户名</label>
+                <input type="text" class="form-control" id="username" name="username" required placeholder="请输入手机号码/邮箱/用户名" autofocus>
+                <div class="invalid-feedback">请输入有效的用户名，用户名不能为空。</div>
+            </div>
+            <div class="form-group position-relative">
+                <label for="password">密码</label>
+                <input type="password" class="form-control" id="password" name="password" required placeholder="请输入6-16位密码">
+                <div class="invalid-feedback">密码不能为空，请输入密码。</div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="loginButton">
+                登录
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </button>
+        </form>
+
+        <!-- 登录页面下方的链接 -->
+        <div class="auth-links">
+            <a href="{% url 'register' %}" class="btn btn-secondary">注册</a>
+            <a href="{% url 'forgot_password' %}" class="btn btn-link">忘记密码?</a>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const loginButton = document.getElementById('loginButton');
+            const loginForm = document.getElementById('loginForm');
+            const spinner = loginButton.querySelector('.spinner-border');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const errorMessage = document.getElementById('error-message');
+
+            // 表单提交事件
+            loginForm.addEventListener('submit', function (event) {
+                event.preventDefault(); // 阻止默认提交
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                // 清除所有之前的错误提示
+                usernameInput.classList.remove('is-invalid');
+                passwordInput.classList.remove('is-invalid');
+                const invalidFeedbacks = document.querySelectorAll('.invalid-feedback');
+                invalidFeedbacks.forEach(feedback => feedback.style.display = 'none');
+
+                // 用户名验证
+                if (username === '') {
+                    usernameInput.classList.add('is-invalid');
+                    usernameInput.nextElementSibling.style.display = 'block';
+                    usernameInput.nextElementSibling.textContent = '用户名不能为空，请输入有效的用户名。';
+                }
+
+                // 密码验证
+                if (password === '') {
+                    passwordInput.classList.add('is-invalid');
+                    passwordInput.nextElementSibling.style.display = 'block';
+                    passwordInput.nextElementSibling.textContent = '密码不能为空，请输入密码。';
+                }
+
+                // 如果验证通过，启动加载动画并提交表单
+                if (username !== '' && password !== '') {
+                    loginButton.disabled = true;
+                    spinner.style.display = 'inline-block';
+
+                    // 提交表单
+                    loginForm.submit();
+                } else {
+                    // 显示错误提示（用户名或密码错误）
+                    errorMessage.textContent = '用户名或密码错误，请重新输入。';
+                    errorMessage.style.display = 'block';
+
+                    // 3秒后隐藏错误提示
+                    setTimeout(function() {
+                        errorMessage.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
